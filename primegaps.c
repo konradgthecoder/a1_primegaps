@@ -60,7 +60,8 @@ main(int argc, char** argv) {
 
 	/* Index of my left boundary */
 	local_a = my_rank * (b / p) + min(my_rank, b % p);
-	
+	local_b = local_a + local_n;
+
 	/* Testing boundaries */
 	printf("I am process %d, my left bound is: %d, my right bound is: %d.\n", my_rank, local_a, local_b);
 	
