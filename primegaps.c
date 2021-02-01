@@ -17,7 +17,7 @@
  * Notes:
  *	1.	a, b are hardcoded.
  *	2.	Number of processes (p) evenly divides the
- *		rightmost boundary of [a, b].
+*		rightmost boundary of [a, b].
  */
 #include <stdio.h>
 #include <string.h>
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include "mpi.h"
 
-#define MAX 100000
+const int MAX = 1000000;
 
 struct Primes {
 	int primes_list[MAX];
@@ -40,6 +40,9 @@ main(int argc, char** argv) {
 	int	local_a;	/* Left boundary my process	*/
 	int	local_b;	/* Right boundary my process	*/
 	int	local_n;	/* Size of my interval		*/
+	int	max_gap;	/* Maximum gap			*/
+	int 	prime1;		/* First prime			*/
+	int	prime2;		/* Second prime			*/
 	int	gap;		/* Largest gap			*/
 	int	x;		/* First prime			*/
 	int	y;		/* Consecutive prime		*/
@@ -88,6 +91,22 @@ main(int argc, char** argv) {
 		}
 	}
 
+	/* Find largest local_gap */
+	int k = 1;
+	int cur_local_gap = 0;
+	int max_local_gap = 0;
+	int l_prime1;
+	int l_prime2;
+	for (int i = 0; i < local_primes.count - 1; i++) {
+		cur_local_gap = local_primes.primes_list[k] - local_primes.primes_list[i];
+		if (cur_local_gap > max_local_gap) {
+			max_local_gap = cur_local_gap;
+			l_prime1 = local_primes.primes_list[i];
+			l_prime2 = local_primes.primes_list[k];
+		}		
+		k++;
+	}
+
 	/* Merge all processor outputs into one array */
 	if (my_rank == 0) {
 		global_primes.count = 0;
@@ -110,10 +129,9 @@ main(int argc, char** argv) {
 			/* Populate global_primes */
 			int i = global_primes.count;
 			int j = 0;
-			while (local_primes.primes_list[j]) {
+			for (int j = 0; j < local_primes.count; j++) {
 				global_primes.primes_list[i] = local_primes.primes_list[j];
 				i++;
-				j++;
 				global_primes.count++;
 			}
 		}
@@ -129,10 +147,20 @@ main(int argc, char** argv) {
 	
 	/* Print final results */
 	if (my_rank == 0) {
-		for (int i = 0; i < global_primes.count; i++) {
-			printf("%d, ", global_primes.primes_list[i]);
+		int j = 1;
+		int cur_gap = 0;
+		max_gap = 0;
+		for (int i = 0; i < global_primes.count - 1; i++) {
+			cur_gap = global_primes.primes_list[j] - global_primes.primes_list[i];
+			if (cur_gap > max_gap) {
+				max_gap = cur_gap;
+				prime1 = global_primes.primes_list[i];
+				prime2 = global_primes.primes_list[j];
+			}
+			j++;
 		}
 		printf("\n");	
+		printf("Max gap: %d. Between %d and %d.\n", max_gap, prime1, prime2);
 	}
 
 	/* Shut down MPI */
@@ -159,4 +187,3 @@ int min(
 	/* KONRAD CHANGE */
 	return i < j ? i : j;
 }
-
