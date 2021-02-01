@@ -79,7 +79,7 @@ bool isPrime(
 int min(
 	int i,			/* in */
 	int j			/* in */) {
-
+	/* KONRAD CHANGE */
 	return i < j ? i : j;
 }
 
