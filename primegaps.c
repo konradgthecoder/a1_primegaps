@@ -33,10 +33,6 @@ struct Primes {
 	int count;
 };
 
-
-void sieve(int * num_list){
-}
-
 main(int argc, char** argv) {
 	int	my_rank;	/* My process rank		*/
 	int	p;		/* The number of processes	*/
@@ -104,17 +100,12 @@ main(int argc, char** argv) {
 		}
 	}
 	
-/*	for (int xy = 0; xy < MAX; xy++) {
-		printf("Index %d, %d\n", xy, num_list[xy]);
-	}
-*/
 	/* Loop through local range and populate prime_list  */
 	int c = 0;
 	for (int i = local_a; i<local_b; i++) {
 		
 		/* Appending to local_primes if current number is prime */
 		if (isPrime(i, num_list)) {
-	//		printf("%d, ", i);
 			local_primes.primes_list[c] = i;
 			c++;
 			local_primes.count++;
@@ -136,7 +127,6 @@ main(int argc, char** argv) {
 	l_left_bound = local_primes.primes_list[0];
 	l_right_bound = local_primes.primes_list[local_primes.count-1];
 
-	/* TEST CASE */
 
 	/* Merge all processor outputs into one array */
 	if (my_rank == 0) {
@@ -217,11 +207,9 @@ main(int argc, char** argv) {
 				prime2 = global_primes.primes_list[j];
 			}
 			j+=2;
-			printf("%d, ", global_primes.primes_list[tmp]);
 			tmp++;
 		}
 		/* Output */
-		printf("\n");	
 		printf("Max gap: %d. Between %d and %d.\n", max_gap, prime1, prime2);
 		free(global_primes.primes_list);
 	}
@@ -234,13 +222,9 @@ bool isPrime(
 	int current_index,	/* in */
 	int * num_list		/* in */) {
 
-	/* TODO: improve time complexity of this function	 
-	 *  	
-	 */
 	if (current_index == 0 || current_index == 1) return false;
 
 	if (num_list[current_index] == 0){
-//		printf("Current_index: %d, %d\n", current_index, num_list[current_index]);
 		return true;
 	}
 	
@@ -265,6 +249,6 @@ bool isPrime(
 int min(
 	int i,			/* in */
 	int j			/* in */) {
-	/* KONRAD CHANGE */
+
 	return i < j ? i : j;
 }
