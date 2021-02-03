@@ -32,6 +32,23 @@ struct Primes {
 	int count;
 }
 
+/*Array to store boolean value of Prime*/
+int *num_list;
+
+void sieve(){
+	num_list[0] = -1;
+	num_list[1] = -1;
+	num_list[2] = 0;
+	for(int i = 2; i <= sqrt(MAX); i++){
+		if(num_list[i] == 0){
+			for(int j = 2; (i*j) <= MAX; j++){
+				num_list[i*j] = 1;
+			}
+		}
+	}
+
+}
+
 main(int argc, char** argv) {
 	int	my_rank;	/* My process rank		*/
 	int	p;		/* The number of processes	*/
@@ -58,6 +75,10 @@ main(int argc, char** argv) {
 	int 	cur_local_gap = 0;	
 	int 	max_local_gap = 0;
 	MPI_Status status;
+    
+    num_list = calloc((MAX+1),sizeof(int));
+    /*sieve function runs sieve of eratosthenes algorithm to generate list of known primes*/
+	sieve();
 
 	/* Find out whether current index is a prime */
 	bool isPrime(int current_index);
@@ -210,8 +231,14 @@ bool isPrime(
 	/* TODO: improve time complexity of this function	 
 	 *  	
 	 */
-	if (current_index == 1) return false;
-
+	if (!num_list[current_index]){
+		return true;
+	}
+	else{
+		false;
+	}
+    
+    /*
 	int i = 2;
 
 	while (i*i <= current_index) {
@@ -220,7 +247,7 @@ bool isPrime(
 		}
 		i += 1;
 	}
-	return true;
+	return true;*/
 
 	
 }
