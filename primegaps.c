@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <math.h>
 #include "mpi.h"
 
 const int MAX = 1000000000;
@@ -30,23 +31,10 @@ const int MAX = 1000000000;
 struct Primes {
 	int * primes_list;
 	int count;
-}
+};
 
-/*Array to store boolean value of Prime*/
-int *num_list;
 
-void sieve(){
-	num_list[0] = -1;
-	num_list[1] = -1;
-	num_list[2] = 0;
-	for(int i = 2; i <= sqrt(MAX); i++){
-		if(num_list[i] == 0){
-			for(int j = 2; (i*j) <= MAX; j++){
-				num_list[i*j] = 1;
-			}
-		}
-	}
-
+void sieve(int * num_list){
 }
 
 main(int argc, char** argv) {
@@ -74,14 +62,11 @@ main(int argc, char** argv) {
 	struct	Primes global_primes;
 	int 	cur_local_gap = 0;	
 	int 	max_local_gap = 0;
+	int *num_list;
 	MPI_Status status;
     
-    num_list = calloc((MAX+1),sizeof(int));
-    /*sieve function runs sieve of eratosthenes algorithm to generate list of known primes*/
-	sieve();
-
 	/* Find out whether current index is a prime */
-	bool isPrime(int current_index);
+	bool isPrime(int current_index, int * num_list);
 
 	/* Function to determine the minimum of two values */
 	int min(int i, int j);
@@ -105,13 +90,31 @@ main(int argc, char** argv) {
 	/* Initialize local_primes */
 	local_primes.count = 0;
 	local_primes.primes_list = (int *) malloc(sizeof(int) * MAX);
-
+    	
+	/* Initialize num_list (list of primes) */
+	num_list = calloc((MAX+1),  sizeof(int));  	
+	num_list[0] = -1;
+	num_list[1] = -1;
+	num_list[2] = 0;
+	for(int i = 2; i <= sqrt(MAX); i++){
+		if(num_list[i] == 0){
+			for(int j = 2; (i*j) <= MAX; j++){
+				num_list[i*j] = 1;
+			}
+		}
+	}
+	
+/*	for (int xy = 0; xy < MAX; xy++) {
+		printf("Index %d, %d\n", xy, num_list[xy]);
+	}
+*/
 	/* Loop through local range and populate prime_list  */
 	int c = 0;
 	for (int i = local_a; i<local_b; i++) {
 		
 		/* Appending to local_primes if current number is prime */
-		if (isPrime(i)) {
+		if (isPrime(i, num_list)) {
+	//		printf("%d, ", i);
 			local_primes.primes_list[c] = i;
 			c++;
 			local_primes.count++;
@@ -132,6 +135,8 @@ main(int argc, char** argv) {
 	/* Store local left and right bounds of local_primes */
 	l_left_bound = local_primes.primes_list[0];
 	l_right_bound = local_primes.primes_list[local_primes.count-1];
+
+	/* TEST CASE */
 
 	/* Merge all processor outputs into one array */
 	if (my_rank == 0) {
@@ -226,17 +231,22 @@ main(int argc, char** argv) {
 } /* main */
 
 bool isPrime(
-	int current_index	/* in */) {
+	int current_index,	/* in */
+	int * num_list		/* in */) {
 
 	/* TODO: improve time complexity of this function	 
 	 *  	
 	 */
-	if (!num_list[current_index]){
+	if (current_index == 0 || current_index == 1) return false;
+
+	if (num_list[current_index] == 0){
+//		printf("Current_index: %d, %d\n", current_index, num_list[current_index]);
 		return true;
 	}
-	else{
-		false;
-	}
+	
+	return false;
+
+
     
     /*
 	int i = 2;
