@@ -26,7 +26,7 @@
 #include <math.h>
 #include "mpi.h"
 
-const int MAX = 100;
+const int MAX = 100000000;
 
 struct Primes {
 	int * primes_list;
