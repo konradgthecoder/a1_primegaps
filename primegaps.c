@@ -26,14 +26,14 @@
 #include <math.h>
 #include "mpi.h"
 
-const int MAX = 1000000000;
+const int MAX = 100000000;
 
 struct Primes {
 	int * primes_list;
 	int count;
 };
 
-main(int argc, char** argv) {
+int main(int argc, char** argv) {
 	int	my_rank;	/* My process rank		*/
 	int	p;		/* The number of processes	*/
 	int	a = 0;		/* Left interval boundary	*/
