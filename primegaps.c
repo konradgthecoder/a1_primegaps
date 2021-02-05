@@ -133,8 +133,9 @@ main(int argc, char** argv) {
 		
 		/* Populate processor 0 output to global list */
 		global_primes.primes_list = (int *) malloc(sizeof(int) * MAX);
-		global_primes.primes_list[0] = local_primes.primes_list[local_primes.count-1];
-		global_primes.count = 1;
+		global_primes.primes_list[0] = local_primes.primes_list[0];
+		global_primes.primes_list[1] = local_primes.primes_list[local_primes.count-1];
+		global_primes.count = 2;
 		int i = 0;
 		/* Receive primes, gaps, and boundaries from p > 0 */
 		for (source = 1; source < p; source++) {
@@ -199,7 +200,7 @@ main(int argc, char** argv) {
 		int tmp = 0;
 		int cur_gap = 0;
 		/* Handling boundary case */
-		for (int i = 0; i < global_primes.count - 1; i+=2) {
+		for (int i = 1; i < global_primes.count; i+=2) {
 			cur_gap = global_primes.primes_list[j] - global_primes.primes_list[i];
 			if (cur_gap > max_gap) {
 				max_gap = cur_gap;
