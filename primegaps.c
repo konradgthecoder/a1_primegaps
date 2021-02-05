@@ -26,7 +26,7 @@
 #include <math.h>
 #include "mpi.h"
 
-const int MAX = 100000000;
+const int MAX = 1000000000;
 
 struct Primes {
 	int * primes_list;
@@ -42,6 +42,7 @@ int main(int argc, char** argv) {
 	int	local_b;	/* Right boundary my process	*/
 	int	local_n;	/* Size of my interval		*/
 	int	max_gap = 0;	/* Maximum gap			*/
+	int	d_max_gap = 0;	/* Processor 0's max gap	*/
 	int 	prime1;		/* First prime			*/
 	int	prime2;		/* Second prime			*/
 	int	gap;		/* Largest gap			*/
@@ -49,6 +50,8 @@ int main(int argc, char** argv) {
 	int	y;		/* Consecutive prime		*/
 	int 	l_prime1;	/* Local prime 1		*/
 	int 	l_prime2;	/* Local prime 2		*/
+	int	d_prime1;	/* P0 prime 1			*/
+	int	d_prime2;	/* P0 prime 2			*/
 	int	l_left_bound;	/* Local left bound prime	*/
 	int	l_right_bound;	/* Local right bound prime	*/
 	int 	source;		/* Process sending data		*/
@@ -129,8 +132,12 @@ int main(int argc, char** argv) {
 
 
 	/* Merge all processor outputs into one array */
-	if (my_rank == 0) {
-		
+	if (my_rank == 0) {	
+		/* Handling case with 2 processors */
+		d_max_gap = max_local_gap;
+		d_prime1 = l_prime1;
+		d_prime2 = l_prime2;
+
 		/* Populate processor 0 output to global list */
 		global_primes.primes_list = (int *) malloc(sizeof(int) * MAX);
 		global_primes.primes_list[0] = local_primes.primes_list[0];
@@ -160,6 +167,13 @@ int main(int argc, char** argv) {
 			tag = 5;
 			MPI_Recv(&l_prime2, 1, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
 			
+			/* Update max_gap */
+			if (max_local_gap > max_gap) {
+				max_gap = max_local_gap;
+				prime1 = l_prime1;
+				prime2 = l_prime2;
+			}
+			
 			/* Populate global_primes with boundary primes */
 			i = global_primes.count;
 			global_primes.primes_list[i] = l_left_bound;
@@ -168,12 +182,11 @@ int main(int argc, char** argv) {
 			global_primes.primes_list[i] = l_right_bound;
 			global_primes.count++;
 
-			/* Update max_gap */
-			if (max_local_gap > max_gap) {
-				max_gap = max_local_gap;
-				prime1 = l_prime1;
-				prime2 = l_prime2;
-			}
+		}
+		if (d_max_gap > max_gap) {
+			max_gap = d_max_gap;
+			prime1 = d_prime1;
+			prime2 = d_prime2;
 		}
 	}
 	
@@ -199,6 +212,8 @@ int main(int argc, char** argv) {
 		int j = 1;
 		int tmp = 0;
 		int cur_gap = 0;
+		
+		
 		/* Handling boundary case */
 		for (int i = 1; i < global_primes.count; i+=2) {
 			cur_gap = global_primes.primes_list[j] - global_primes.primes_list[i];
@@ -210,11 +225,14 @@ int main(int argc, char** argv) {
 			j+=2;
 			tmp++;
 		}
-		/* Output */
+		
 		printf("Max gap: %d. Between %d and %d.\n", max_gap, prime1, prime2);
+		
+		/* Output */
 		free(global_primes.primes_list);
 	}
 
+	
 	/* Shut down MPI */
 	MPI_Finalize();
 } /* main */
