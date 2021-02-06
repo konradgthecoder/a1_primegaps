@@ -249,19 +249,6 @@ bool isPrime(
 	
 	return false;
 
-
-    
-    /*
-	int i = 2;
-
-	while (i*i <= current_index) {
-		if (current_index % i == 0) {
-			return false;
-		}
-		i += 1;
-	}
-	return true;*/
-
 	
 }
 
